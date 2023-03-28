@@ -1,0 +1,9 @@
+{
+	"config_groups": [
+		{
+			"input_file": "input/en_us.json",
+			"pattern_file": "config/pattern_group.json",
+			"output_file": "output/en_ld.json"
+		}
+	]
+}

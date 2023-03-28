@@ -1,0 +1,9 @@
+{
+	"config_groups": [
+		{
+			"action": "both",
+			"output_file": "output/duplicate_keys.json",
+			"input_file": "input/en_ld.json"
+		}
+	]
+}

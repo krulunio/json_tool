@@ -1,0 +1,28 @@
+{
+	"key_root": "block.minecraft",
+	"patterns": [
+		{
+			"key_part": "planks",
+			"action": "base",
+			"value": "BASE"
+		},
+		{
+			"key_part": "oak",
+			"action": "begin",
+			"value": "BEGIN",
+			"separator": "<-"
+		},
+		{
+			"key_part": "birch",
+			"action": "end",
+			"value": "END",
+			"separator": "->"
+		},
+		{
+			"key_part": "slab",
+			"action": "replace",
+			"replace_what": "Slab",
+			"replace_with": "REPLACE"
+		}
+	]
+}
