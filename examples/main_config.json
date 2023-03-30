@@ -1,0 +1,12 @@
+{
+	"GROUP NAME": {
+		"FUNCTION NAME": [
+			"path/to/config1.json",
+			"path/to/config2.json"
+		]
+	},
+	"Comments": {
+		"GROUP NAME": "There can be many groups, but each must have unique name.",
+		"FUNCTION NAME": "There can be many functions in group, but each must be unique; can have many paths that repeat.",
+	}
+}

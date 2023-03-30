@@ -1,0 +1,21 @@
+{
+	"GROUP NAME": [
+		{
+			"action": "ACTION",
+			"template_file": "path/to/template.json",
+			"input_file": "path/to/input.json",
+			"output_file": "path/to/output.json"
+		}
+	],
+	"Comments": {
+		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
+		"action": {
+			"keys": "Find missing keys.",
+			"values": "Find keys with empty values",
+			"both": "Do both 'keys' and 'values'."
+		},
+		"template_file": "Template file, to which 'input_file' is compared.",
+		"input_file": "File that program checks.",
+		"output_file": "File with program's output."
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"GROUP NAME": [
+		{
+			"action": "ACTION",
+			"default_value": "DEFAULT VALUE",
+			"template_file": "path/to/template.json",
+			"input_file": "path/to/input.json",
+			"output_file": "path/to/output.json"
+		}
+	],
+	"Comments": {
+		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
+		"action": {
+			"add_missing_keys": "Adds missing keys with 'default_value' value.",
+			"set_all_to_default": "Create file with all keys and values set to 'default_value'."
+		},
+		"default_value": "Value to be used if key doesn't exist.",
+		"template_file": "Template file, to which 'input_file' is compared.",
+		"input_file": "File that program modifies.",
+		"output_file": "Modified 'input_file'."
+	}
+}

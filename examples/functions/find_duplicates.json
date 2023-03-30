@@ -1,0 +1,19 @@
+{
+	"GROUP NAME": [
+		{
+			"action": "ACTION",
+			"input_file": "path/to/input.json",
+			"output_file": "path/to/output.json"
+		}
+	],
+	"Comments": {
+		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
+		"action": {
+			"keys": "Find duplicate keys and their amount.",
+			"values": "Find duplicate values and their amount.",
+			"both": "Do both 'keys' and 'values'."
+		},
+		"input_file": "File that program checks.",
+		"output_file": "File with program's output."
+	}
+}

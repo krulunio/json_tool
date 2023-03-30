@@ -1,0 +1,41 @@
+{
+	"exclusion_tags": {
+		"EXCLUSION_TAG": [
+			"EXCLUSION_1",
+			"EXCLUSION_2"
+		]
+	},
+	"key_root": "block.minecraft",
+	"patterns": [
+		{
+			"key_part": "KEY PART",
+			"exclusions": [
+				"EXCLUSION",
+				"#EXCLUSION_TAG"
+			],
+			"action": "ACTION",
+			"value": "VALUE",
+			"separator": "SEPARATOR",
+			"replace_what": "WHAT",
+			"replace_with": "WITH",
+		}
+	],
+	"Comments": {
+		"exclusion_tags": "Exclusion tags used by this file.",
+			"EXCLUSION_TAG": "A tag for grouping multiple exclusions under one name."
+		"key_root": "If key doesn't start with 'key_root', it's skipped.",
+		"patterns": "Patterns to be applied.",
+			"key_part": "Program takes part of key after last '.' character, then divides it along '_' characters int 'key_parts'. Pattern is applied only if 'key_part' is among 'key_parts'.",
+			"exclusions": "Like above, except pattern is NOT applied if element from 'exclusions' is among 'key_parts'.",
+			"action": {
+				"base": "Set key's value to 'value'.",
+				"begin": "Add 'value' at the beginning of key's value, separated with 'separator'.",
+				"end": "Add 'value' at the end of key's value, separated with 'separator'.",
+				"replace": "Replace all 'replace_what' with 'replace_with' in key's value."
+			},
+			"value": "Text used by pattern in actions 'base', 'begin', 'end'.",
+			"separator": "Text (or character) used to separate key's value and 'value'. Used in actions 'begin', 'end'.",
+			"replace_what": "What part of key's value to replace, used in 'replace' action.",
+			"replace_with": "Text that replaces parts of key's value, used in 'replace' action."
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"GROUP NAME": [
+		{
+			"pattern_file": "path/to/pattern.json",
+			"input_file": "path/to/input.json",
+			"output_file": "path/to/output.json"
+		}
+	],
+	"Comments": {
+		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
+		"pattern_file": "File with patterns to be applied.",
+		"input_file": "File that program modifies.",
+		"output_file": "Modified 'input_file'."
+	}
+}
