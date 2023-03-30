@@ -1,9 +1,0 @@
-{
-	"config_groups": [
-		{
-			"find_missing": "config/find_missing.json",
-			"find_duplicates": "config/find_duplicates.json",
-			"replace_values": "config/replace_values.json"
-		}
-	]
-}

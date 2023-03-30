@@ -1,4 +1,26 @@
 import json
+import os
+
+
+def get_exclusions(current_pattern, exclusion_tags):
+    try:
+        exclusion_list = []
+        for exclusion in current_pattern["exclusions"]:
+            if exclusion[0] == '#':
+                for exclusion_from_tag in exclusion_tags[exclusion[1:]]:
+                    exclusion_list.append(exclusion_from_tag)
+            else:
+                exclusion_list.append(exclusion)
+        return exclusion_list
+    except:
+        return []
+
+
+def check_exclusions(key_parts, exclusions):
+    for key_part in key_parts:
+        if key_part in exclusions:
+            return True
+    return False
 
 
 def parse_action(current_pattern, current_output):
@@ -14,11 +36,12 @@ def parse_action(current_pattern, current_output):
     return current_output
 
 
-def parse_patterns(loaded_patterns, current_key, current_value):
+def parse_patterns(loaded_patterns, exclusion_tags, current_key, current_value):
     output_value = current_value
     for current_pattern in loaded_patterns:
         key_parts = current_key.split(".")[-1].split("_")
-        if current_pattern["key_part"] in key_parts:
+        exclusions = get_exclusions(current_pattern, exclusion_tags)
+        if (current_pattern["key_part"] in key_parts) and not check_exclusions(key_parts, exclusions):
             output_value = parse_action(current_pattern, output_value)
     return output_value
 
@@ -33,6 +56,7 @@ def run(config_file):
         for key, value in input_file.items():
             output_object[key] = value
             if key.startswith(key_root):
-                output_object[key] = parse_patterns(loaded_patterns, key, value)
+                output_object[key] = parse_patterns(loaded_patterns, pattern_file["exclusion_tags"], key, value)
+        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(output_object, open(config_group["output_file"], "w"), indent="\t")
     print("Done replacing values!")

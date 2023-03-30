@@ -1,4 +1,5 @@
 import json
+import os
 
 
 def remove_unique(checked_pairs):
@@ -50,5 +51,6 @@ def run(config_file):
             case "both":
                 duplicates.update(json.load(open(config_group["input_file"], "r"), object_pairs_hook=find_duplicate_keys))
                 duplicates.update(json.load(open(config_group["input_file"], "r"), object_pairs_hook=find_duplicate_values))
+        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(duplicates, open(config_group["output_file"], "w"), indent="\t")
     print("Done finding duplicates!")
