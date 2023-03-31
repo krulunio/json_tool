@@ -2,16 +2,16 @@ import json
 import os
 
 
-def get_exclusions(current_pattern, exclusion_tags):
+def resolve_tags(values_and_tags, tags):
     try:
-        exclusion_list = []
-        for exclusion in current_pattern["exclusions"]:
-            if exclusion[0] == '#':
-                for exclusion_from_tag in exclusion_tags[exclusion[1:]]:
-                    exclusion_list.append(exclusion_from_tag)
+        values_list = []
+        for value_or_tag in values_and_tags:
+            if value_or_tag[0] == '#':
+                for value_from_tag in tags[value_or_tag[1:]]:
+                    values_list.append(value_from_tag)
             else:
-                exclusion_list.append(exclusion)
-        return exclusion_list
+                values_list.append(value_or_tag)
+        return values_list
     except:
         return []
 
@@ -21,6 +21,13 @@ def check_exclusions(key_parts, exclusions):
         if key_part in exclusions:
             return True
     return False
+
+
+def check_inclusions(key_parts, inclusions):
+    for inclusion in inclusions:
+        if inclusion not in key_parts:
+            return False
+    return True
 
 
 def parse_action(current_pattern, current_output):
@@ -36,18 +43,22 @@ def parse_action(current_pattern, current_output):
     return current_output
 
 
-def parse_patterns(loaded_patterns, exclusion_tags, current_key, current_value):
+def parse_patterns(loaded_patterns, tags, current_key, current_value):
     output_value = current_value
     for current_pattern in loaded_patterns:
         key_parts = current_key.split(".")[-1].split("_")
-        exclusions = get_exclusions(current_pattern, exclusion_tags)
-        if (current_pattern["key_part"] in key_parts) and not check_exclusions(key_parts, exclusions):
+        inclusions = resolve_tags(current_pattern["inclusions"], tags)
+        try:
+            exclusions = resolve_tags(current_pattern["exclusions"], tags)
+        except:
+            exclusions = []
+        if check_inclusions(key_parts, inclusions) and not check_exclusions(key_parts, exclusions):
             output_value = parse_action(current_pattern, output_value)
     return output_value
 
 
 def run(config_file):
-    for config_group in json.load(open(config_file, "r"))["config_groups"]:
+    for config_group in json.load(open(config_file, "r")).values():
         pattern_file = json.load(open(config_group["pattern_file"], "r"))
         key_root = pattern_file["key_root"]
         loaded_patterns = pattern_file["patterns"]
@@ -56,6 +67,6 @@ def run(config_file):
         for key, value in input_file.items():
             output_object[key] = value
             if key.startswith(key_root):
-                output_object[key] = parse_patterns(loaded_patterns, pattern_file["exclusion_tags"], key, value)
+                output_object[key] = parse_patterns(loaded_patterns, pattern_file["tags"], key, value)
         os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(output_object, open(config_group["output_file"], "w"), indent="\t")

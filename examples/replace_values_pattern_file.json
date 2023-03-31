@@ -1,14 +1,17 @@
 {
-	"exclusion_tags": {
-		"EXCLUSION_TAG": [
-			"EXCLUSION_1",
-			"EXCLUSION_2"
+	"TAGS": {
+		"TAG": [
+			"VALUE_1",
+			"VALUE_2"
 		]
 	},
-	"key_root": "block.minecraft",
+	"key_root": "KEY.ROOT",
 	"patterns": [
 		{
-			"key_part": "KEY PART",
+			"inclusions": [
+				"KEY PART",
+				"#KEY_PART_TAG"
+			],
 			"exclusions": [
 				"EXCLUSION",
 				"#EXCLUSION_TAG"
@@ -21,11 +24,11 @@
 		}
 	],
 	"Comments": {
-		"exclusion_tags": "Exclusion tags used by this file.",
-			"EXCLUSION_TAG": "A tag for grouping multiple exclusions under one name."
+		"tags": "Tags used by this file.",
+			"TAG": "A tag for grouping multiple 'key_parts' under one name."
 		"key_root": "If key doesn't start with 'key_root', it's skipped.",
 		"patterns": "Patterns to be applied.",
-			"key_part": "Program takes part of key after last '.' character, then divides it along '_' characters int 'key_parts'. Pattern is applied only if 'key_part' is among 'key_parts'.",
+			"inclusions": "Program takes part of key after last '.' character, then divides it along '_' characters into 'key_parts'. Pattern is applied only if all 'inclusions' are among 'key_parts'.",
 			"exclusions": "Like above, except pattern is NOT applied if element from 'exclusions' is among 'key_parts'.",
 			"action": {
 				"base": "Set key's value to 'value'.",
