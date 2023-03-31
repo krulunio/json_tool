@@ -1,13 +1,11 @@
 {
-	"GROUP NAME": [
-		{
-			"action": "ACTION",
-			"default_value": "DEFAULT VALUE",
-			"template_file": "path/to/template.json",
-			"input_file": "path/to/input.json",
-			"output_file": "path/to/output.json"
-		}
-	],
+	"GROUP NAME": {
+		"action": "ACTION",
+		"default_value": "DEFAULT VALUE",
+		"template_file": "path/to/template.json",
+		"input_file": "path/to/input.json",
+		"output_file": "path/to/output.json"
+	},
 	"Comments": {
 		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
 		"action": {

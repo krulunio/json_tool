@@ -27,7 +27,7 @@ def set_all_to_default(template_file, default_value):
 
 
 def run(config_file):
-    for config_group in json.load(open(config_file, "r"))["config_groups"]:
+    for config_group in json.load(open(config_file, "r")).values():
         template_file = json.load(open(config_group["template_file"], "r"))
         input_file = json.load(open(config_group["input_file"], "r"))
         output_file = {}
@@ -39,4 +39,3 @@ def run(config_file):
                 output_file = set_all_to_default(template_file, config_group["default_value"])
         os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(output_file, open(config_group["output_file"], "w"), indent="\t")
-    print("Done adding missing!")

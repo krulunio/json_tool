@@ -20,6 +20,6 @@ def run_functions():
 for config_group_key, config_group in json.load(open("main_config.json")).items():
     for config_key in config_group.keys():
         run_functions()
-        print("Finished '{}' functions.".format(config_group_key))
+        print("Finished '{}' functions.".format(config_key))
     print("Finished '{}' group.".format(config_group_key))
 print("Finished all groups.")

@@ -41,7 +41,7 @@ def find_duplicate_values(checked_file):
 
 
 def run(config_file):
-    for config_group in json.load(open(config_file, "r"))["config_groups"]:
+    for config_group in json.load(open(config_file, "r")).values():
         duplicates = {}
         match config_group["action"]:
             case "keys":
@@ -53,4 +53,3 @@ def run(config_file):
                 duplicates.update(json.load(open(config_group["input_file"], "r"), object_pairs_hook=find_duplicate_values))
         os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(duplicates, open(config_group["output_file"], "w"), indent="\t")
-    print("Done finding duplicates!")

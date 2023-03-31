@@ -24,7 +24,7 @@ def find_missing_values(checked_file):
 
 
 def run(config_file):
-    for config_group in json.load(open(config_file, "r"))["config_groups"]:
+    for config_group in json.load(open(config_file, "r")).values():
         global template_file
         template_file = json.load(open(config_group["template_file"], "r"))
         missing = {}
@@ -38,4 +38,3 @@ def run(config_file):
                 missing.update(json.load(open(config_group["input_file"], "r"), object_pairs_hook=find_missing_values))
         os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(missing, open(config_group["output_file"], "w"), indent="\t")
-    print("Done finding missing!")

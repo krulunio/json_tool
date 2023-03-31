@@ -1,2 +1,10 @@
 {
+	"Update keys": {
+		"add_missing": [
+			"configs/Update keys/add_missing_keys.json"
+		],
+		"find_missing": [
+			"configs/Update keys/find_empty_values.json"
+		]
+	}
 }
