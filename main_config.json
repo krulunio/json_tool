@@ -1,7 +1,2 @@
 {
-	"example_config_group_1": {
-		"replace_values": [
-			"example/config/replace_values_file.json"
-		]
-	}
 }
