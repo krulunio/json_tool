@@ -14,7 +14,7 @@
 		},
 		"default_value": "Value to be used if key doesn't exist.",
 		"template_file": "Template file, to which 'input_file' is compared.",
-		"input_file": "File that program modifies.",
+		"input_file": "File that program modifies, only used by 'add_missing_keys'.",
 		"output_file": "Modified 'input_file'."
 	}
 }

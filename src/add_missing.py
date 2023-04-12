@@ -29,11 +29,11 @@ def set_all_to_default(template_file, default_value):
 def run(config_file):
     for config_group in json.load(open(config_file, "r")).values():
         template_file = json.load(open(config_group["template_file"], "r"))
-        input_file = json.load(open(config_group["input_file"], "r"))
         output_file = {}
-        missing_keys = find_missing_keys(template_file, input_file)
         match config_group["action"]:
             case "add_missing_keys":
+                input_file = json.load(open(config_group["input_file"], "r"))
+                missing_keys = find_missing_keys(template_file, input_file)
                 output_file = add_missing_keys(template_file, input_file, missing_keys, config_group["default_value"])
             case "set_all_to_default":
                 output_file = set_all_to_default(template_file, config_group["default_value"])
