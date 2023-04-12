@@ -3,12 +3,14 @@ import src.replace_values
 import src.add_missing
 import src.find_missing
 import src.find_duplicates
+import src.add_from_file
 
 functions = {
     "replace_values": src.replace_values.run,
     "add_missing": src.add_missing.run,
     "find_missing": src.find_missing.run,
-    "find_duplicates": src.find_duplicates.run
+    "find_duplicates": src.find_duplicates.run,
+    "add_from_file": src.add_from_file.run
 }
 
 
