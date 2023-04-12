@@ -10,11 +10,12 @@
 		"GROUP NAME": "There can be many groups, but each must have unique name. Also, can contain multiple objects/jobs.",
 		"action": {
 			"add_missing_keys": "Adds missing keys with 'default_value' value.",
+			"add_missing_keys": "Replaces all values containing 'default_value' with values from 'template_file'.",
 			"set_all_to_default": "Create file with all keys and values set to 'default_value'."
 		},
 		"default_value": "Value to be used if key doesn't exist.",
 		"template_file": "Template file, to which 'input_file' is compared.",
-		"input_file": "File that program modifies, only used by 'add_missing_keys'.",
+		"input_file": "File that program modifies, not used by 'set_all_to_default'.",
 		"output_file": "Modified 'input_file'."
 	}
 }

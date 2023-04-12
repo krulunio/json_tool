@@ -10,14 +10,18 @@ def find_missing_keys(template_file, input_file):
     return missing_keys
 
 
-def add_missing_keys(template_file, input_file, missing_keys, default_value):
-    output_object = {}
+def add_missing_keys(template_file, input_file, default_value):
     for key in template_file.keys():
-        if key in missing_keys:
-            output_object[key] = default_value
-        else:
-            output_object[key] = input_file[key]
-    return output_object
+        if key in find_missing_keys(template_file, input_file):
+            input_file[key] = default_value
+    return input_file
+
+
+def add_missing_values(template_file, input_file, default_value):
+    for key, value in input_file.items():
+        if value == default_value:
+            input_file[key] = template_file[key]
+    return input_file
 
 
 def set_all_to_default(template_file, default_value):
@@ -33,8 +37,10 @@ def run(config_file):
         match config_group["action"]:
             case "add_missing_keys":
                 input_file = json.load(open(config_group["input_file"], "r"))
-                missing_keys = find_missing_keys(template_file, input_file)
-                output_file = add_missing_keys(template_file, input_file, missing_keys, config_group["default_value"])
+                output_file = add_missing_keys(template_file, input_file, config_group["default_value"])
+            case "add_missing_values":
+                input_file = json.load(open(config_group["input_file"], "r"))
+                output_file = add_missing_values(template_file, input_file, config_group["default_value"])
             case "set_all_to_default":
                 output_file = set_all_to_default(template_file, config_group["default_value"])
         os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
