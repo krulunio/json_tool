@@ -71,5 +71,5 @@ def run(config_file):
             output_object[key] = value
             if key.startswith(key_root):
                 output_object[key] = parse_patterns(loaded_patterns, tags, key, value)
-        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
+        os.makedirs("./"+os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(output_object, open(config_group["output_file"], "w"), indent="\t")

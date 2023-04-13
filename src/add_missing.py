@@ -43,5 +43,5 @@ def run(config_file):
                 output_file = add_missing_values(template_file, input_file, config_group["default_value"])
             case "set_all_to_default":
                 output_file = set_all_to_default(template_file, config_group["default_value"])
-        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
+        os.makedirs("./"+os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(output_file, open(config_group["output_file"], "w"), indent="\t")

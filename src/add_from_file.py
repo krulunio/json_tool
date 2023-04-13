@@ -23,7 +23,7 @@ def run(config_file):
         match config_group["action"]:
             case "set_pairs_from_file":
                 missing_file = set_pairs_from_file(input_file, pairs_file)
-        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
+        os.makedirs("./"+os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(input_file, open(config_group["output_file"], "w"), indent="\t")
-        os.makedirs(os.path.dirname(config_group["missing_file"]), exist_ok=True)
+        os.makedirs("./"+os.path.dirname(config_group["missing_file"]), exist_ok=True)
         json.dump(missing_file, open(config_group["missing_file"], "w"), indent="\t")

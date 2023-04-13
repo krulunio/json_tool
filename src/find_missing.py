@@ -36,5 +36,5 @@ def run(config_file):
             case "both":
                 missing.update(json.load(open(config_group["input_file"], "r"), object_hook=find_missing_keys))
                 missing.update(json.load(open(config_group["input_file"], "r"), object_pairs_hook=find_missing_values))
-        os.makedirs(os.path.dirname(config_group["output_file"]), exist_ok=True)
+        os.makedirs("./"+os.path.dirname(config_group["output_file"]), exist_ok=True)
         json.dump(missing, open(config_group["output_file"], "w"), indent="\t")
