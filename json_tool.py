@@ -19,7 +19,13 @@ def run_functions():
         functions[config_key](config_filename)
 
 
-for config_group_key, config_group in json.load(open("main_config.json")).items():
+main_config = {}
+try:
+    main_config = json.load(open("main_config.json")).items()
+except:
+    main_config = json.load(open("../main_config.json")).items()
+
+for config_group_key, config_group in main_config:
     for config_key in config_group.keys():
         run_functions()
         print("Finished '{}' functions.".format(config_key))
