@@ -6,6 +6,7 @@
 		]
 	},
 	"Comments": {
+		"Where do I put this file?": "Same directory as json_tool.py or in directory above (json_tool.py directory is checked first).",
 		"GROUP NAME": "There can be many groups, but each must have unique name.",
 		"FUNCTION NAME": "There can be many functions in group, but each must be unique; can have many paths that repeat.",
 	}
