@@ -5,7 +5,7 @@ import os
 def check_dict(default_value, name, key):
     try:
         return name[key]
-    except:
+    except KeyError:
         return default_value
 
 
@@ -59,17 +59,70 @@ def parse_patterns(loaded_patterns, tags, current_key, current_value):
     return output_value
 
 
+def default_try_except(config_groups):
+    try:
+        default_group = config_groups.pop("@default")
+        try:
+            default_group["io_path"]
+        except KeyError:
+            default_group["io_path"] = "."
+        try:
+            default_group["pattern_path"]
+        except KeyError:
+            default_group["pattern_path"] = "."
+    except KeyError:
+        default_group = {
+            "io_path": ".",
+            "pattern_path": "."
+        }
+    return default_group
+
+
+def config_try_except(config_name, config_group, default_group):
+    try:
+        config_group["pattern_file"] = default_group["pattern_path"] + '/' + config_group["pattern_file"]
+    except TypeError:
+        config_group = {"pattern_file": default_group["pattern_path"] + '/' + config_group}
+    except KeyError:
+        raise KeyError("Missing 'pattern_file' in '"+config_name+"' group!")
+
+    try:
+        config_group["input_file"] = default_group["io_path"] + '/' + config_group["input_file"]
+    except (KeyError, TypeError):
+        try:
+            config_group["input_file"] = default_group["io_path"] + '/' + default_group["input_file"]
+        except KeyError:
+            raise KeyError("Missing 'input_file' in '" + config_name + "' group!")
+
+    try:
+        config_group["output_file"] = default_group["io_path"] + '/' + config_group["output_file"]
+    except (KeyError, TypeError):
+        try:
+            config_group["output_file"] = default_group["io_path"] + '/' + default_group["output_file"]
+        except KeyError:
+            raise KeyError("Missing 'output_file' in '" + config_name + "' group!")
+
+    return config_group
+
+
 def run(config_file):
-    for config_group in json.load(open(config_file, "r")).values():
+    config_groups = json.load(open(config_file, "r"))
+    default_group = default_try_except(config_groups)
+
+    for config_name, config_group in config_groups.items():
+        config_group = config_try_except(config_name, config_group, default_group)
+
         pattern_file = json.load(open(config_group["pattern_file"], "r"))
-        loaded_patterns = pattern_file["patterns"]
         input_file = json.load(open(config_group["input_file"], "r"))
+        output_file = config_group["output_file"]
+
         key_root = check_dict("", pattern_file, "key_root")
         tags = check_dict({}, pattern_file, "tags")
         output_object = {}
         for key, value in input_file.items():
             output_object[key] = value
             if key.startswith(key_root):
-                output_object[key] = parse_patterns(loaded_patterns, tags, key, value)
-        os.makedirs("./"+os.path.dirname(config_group["output_file"]), exist_ok=True)
-        json.dump(output_object, open(config_group["output_file"], "w"), indent="\t")
+                output_object[key] = parse_patterns(pattern_file["patterns"], tags, key, value)
+
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        json.dump(output_object, open(output_file, "w"), indent="\t")

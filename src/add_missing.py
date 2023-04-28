@@ -2,6 +2,13 @@ import json
 import os
 
 
+def check_dict(default_value, name, key):
+    try:
+        return name[key]
+    except:
+        return default_value
+
+
 def find_missing_keys(template_file, input_file):
     missing_keys = []
     for key in template_file.keys():
@@ -30,10 +37,25 @@ def set_all_to_default(template_file, default_value):
     return template_file
 
 
+def load_input_file(file_name, key_root):
+    input_file = json.load(open(file_name, "r"))
+    input_keys = [
+        key
+        for key in input_file.keys()
+        if key.startswith(key_root)
+    ]
+    filtered_input_file = {
+        key: input_file.items()[key]
+        for key in input_keys
+    }
+    return filtered_input_file
+
+
 def run(config_file):
     for config_group in json.load(open(config_file, "r")).values():
         template_file = json.load(open(config_group["template_file"], "r"))
         output_file = {}
+
         match config_group["action"]:
             case "add_missing_keys":
                 input_file = json.load(open(config_group["input_file"], "r"))
