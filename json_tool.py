@@ -14,20 +14,16 @@ functions = {
 }
 
 
-def run_functions():
-    for config_filename in config_group[config_key]:
-        functions[config_key](config_filename)
-
-
 main_config = {}
 try:
     main_config = json.load(open("main_config.json")).items()
-except:
+except FileNotFoundError:
     main_config = json.load(open("../main_config.json")).items()
 
 for config_group_key, config_group in main_config:
     for config_key in config_group.keys():
-        run_functions()
+        for config_filename in config_group[config_key]:
+            functions[config_key](config_filename)
         print("Finished '{}' functions.".format(config_key))
     print("Finished '{}' group.".format(config_group_key))
 print("Finished all groups.")

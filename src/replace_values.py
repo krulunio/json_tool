@@ -1,8 +1,42 @@
 import json
 import os
 
+actions_dictionary = {
+    "base": lambda new_value, current_value: new_value,
+    "begin": lambda new_value, current_value: new_value + current_value,
+    "end": lambda new_value, current_value: current_value + new_value
+}
 
-def check_dict(default_value, name, key):
+complex_actions_dictionary = {
+    "replace": lambda new_value, current_value, old_value: current_value.replace(old_value, new_value)
+}
+
+
+def resolve_config_file_string(general_config, file_path, file_type):
+    try:
+        general_config[file_type] = general_config[file_path] + '/' + general_config[file_type]
+    except (KeyError, TypeError):
+        try:
+            general_config[file_type] = general_config[file_path] + '/' + general_config[file_type]
+        except KeyError:
+            raise KeyError("Missing '" + file_type + "' in '" + general_config["config_name"] + "' file!")
+
+
+def check_general_config(general_config):
+    general_config["io_path"] = check_dictionary(".", general_config, "io_path")
+    general_config["pattern_path"] = check_dictionary(".", general_config, "pattern_path")
+
+    resolve_config_file_string(general_config, "io_path", "input_file")
+    resolve_config_file_string(general_config, "io_path", "output_file")
+
+    try:
+        if type(general_config["pattern_files"]) != list:
+            raise TypeError("Missing 'pattern_files' in '" + general_config["config_name"] + "' file!")
+    except KeyError:
+        raise KeyError("Missing 'pattern_files' in '" + general_config["config_name"] + "' file!")
+
+
+def check_dictionary(default_value, name, key):
     try:
         return name[key]
     except KeyError:
@@ -20,109 +54,111 @@ def resolve_tags(values_and_tags, tags):
     return values_list
 
 
-def check_exclusions(key_parts, exclusions):
-    for key_part in key_parts:
-        if key_part in exclusions:
-            return True
-    return False
-
-
-def check_inclusions(key_parts, inclusions):
-    for inclusion in inclusions:
-        if inclusion not in key_parts:
+def check_exclusions(key, exclusions):
+    for exclusion in exclusions:
+        if exclusion in key:
             return False
     return True
 
 
-def parse_action(current_pattern, current_output):
-    match current_pattern["action"]:
-        case "base":
-            return current_pattern["value"]
-        case "begin":
-            return current_pattern["value"] + check_dict("", current_pattern, "separator") + current_output
-        case "end":
-            return current_output + check_dict("", current_pattern, "separator") + current_pattern["value"]
-        case "replace":
-            return current_output.replace(current_pattern["replace_what"], current_pattern["replace_with"])
-    raise ValueError("No action named '{}'!".format(current_pattern["action"]))
+def check_inclusions(key, inclusions):
+    for inclusion in inclusions:
+        if inclusion not in key:
+            return False
+    return True
 
 
-def parse_patterns(loaded_patterns, tags, current_key, current_value):
-    output_value = current_value
-    for current_pattern in loaded_patterns:
-        key_parts = current_key.split(".")[-1].split("_")
-        inclusions = resolve_tags(current_pattern["inclusions"], tags)
-        exclusions = check_dict([], current_pattern, "exclusions")
-        exclusions = resolve_tags(exclusions, tags)
-        if check_inclusions(key_parts, inclusions) and not check_exclusions(key_parts, exclusions):
-            output_value = parse_action(current_pattern, output_value)
-    return output_value
+def check_key_requirements(key, key_requirements):
+    return (
+        check_exclusions(key, key_requirements["exclusions"]) and
+        check_inclusions(key, key_requirements["inclusions"]) and
+        key.startswith(key_requirements["key_root"]) and
+        key.endswith(key_requirements["key_leaf"])
+    )
 
 
-def default_try_except(config_groups):
+def get_key_requirements_from_pattern(current_pattern, pattern_file_data):
+    return {
+        "inclusions": resolve_tags(check_dictionary([], current_pattern, "inclusions"), pattern_file_data["tags"]),
+        "exclusions": resolve_tags(check_dictionary([], current_pattern, "exclusions"), pattern_file_data["tags"]),
+        "key_root": "",
+        "key_leaf": ""
+    }
+
+
+def parse_reduced_action(action, current_key, current_value, reduced_patterns_dictionary):
+    if check_dictionary(False, actions_dictionary, action):
+        for checked_value, new_value in reduced_patterns_dictionary.items():
+            if checked_value in current_key:
+                current_value = actions_dictionary[action](new_value, current_value)
+    elif check_dictionary(False, complex_actions_dictionary, action):
+        for old_value, new_value in reduced_patterns_dictionary.items():
+            current_value = complex_actions_dictionary[action](new_value, current_value, old_value)
+    else:
+        raise ValueError("No action named '{}'!".format(action))
+    return current_value
+
+
+def parse_action(current_pattern, current_value):
     try:
-        default_group = config_groups.pop("@default")
-        try:
-            default_group["io_path"]
-        except KeyError:
-            default_group["io_path"] = "."
-        try:
-            default_group["pattern_path"]
-        except KeyError:
-            default_group["pattern_path"] = "."
+        match current_pattern["action"]:
+            case "base": return actions_dictionary["base"](current_pattern["value"], None)
+            case "begin": return actions_dictionary["begin"](current_pattern["value"], (check_dictionary("", current_pattern, "separator") + current_value))
+            case "end": return actions_dictionary["end"](current_pattern["value"], (current_value + check_dictionary("", current_pattern, "separator")))
+            case "replace": return complex_actions_dictionary["replace"](current_value, current_pattern["replace_what"], current_pattern["replace_with"])
     except KeyError:
-        default_group = {
-            "io_path": ".",
-            "pattern_path": "."
-        }
-    return default_group
+        raise ValueError("No action named '{}'!".format(current_pattern["action"]))
 
 
-def config_try_except(config_name, config_group, default_group):
-    try:
-        config_group["pattern_file"] = default_group["pattern_path"] + '/' + config_group["pattern_file"]
-    except TypeError:
-        config_group = {"pattern_file": default_group["pattern_path"] + '/' + config_group}
-    except KeyError:
-        raise KeyError("Missing 'pattern_file' in '"+config_name+"' group!")
+def parse_reduced_patterns(pattern_file_data, io_data, current_key):
+    for action, reduced_patterns_dictionary in pattern_file_data["reduced_patterns"].items():
+        io_data["output_data"][current_key] = parse_reduced_action(action, current_key, io_data["output_data"][current_key], reduced_patterns_dictionary)
 
-    try:
-        config_group["input_file"] = default_group["io_path"] + '/' + config_group["input_file"]
-    except (KeyError, TypeError):
-        try:
-            config_group["input_file"] = default_group["io_path"] + '/' + default_group["input_file"]
-        except KeyError:
-            raise KeyError("Missing 'input_file' in '" + config_name + "' group!")
 
-    try:
-        config_group["output_file"] = default_group["io_path"] + '/' + config_group["output_file"]
-    except (KeyError, TypeError):
-        try:
-            config_group["output_file"] = default_group["io_path"] + '/' + default_group["output_file"]
-        except KeyError:
-            raise KeyError("Missing 'output_file' in '" + config_name + "' group!")
+def parse_patterns(pattern_file_data, io_data, current_key):
+    for current_pattern in pattern_file_data["patterns"]:
+        if check_key_requirements(current_key, get_key_requirements_from_pattern(current_pattern, pattern_file_data)):
+            io_data["output_data"][current_key] = parse_action(current_pattern, io_data["output_data"][current_key])
 
-    return config_group
+
+def load_pattern_file_data(pattern_path, pattern_file):
+    tmp_pattern_file_data = json.load(open(pattern_path + '/' + pattern_file, "r"))
+    tmp_tags = check_dictionary({}, tmp_pattern_file_data, "tags")
+    return {
+        "pattern_file": pattern_file,
+        "key_root": check_dictionary("", tmp_pattern_file_data, "key_root"),
+        "key_leaf": check_dictionary("", tmp_pattern_file_data, "key_leaf"),
+        "inclusions": resolve_tags(check_dictionary("", tmp_pattern_file_data, "inclusions"), tmp_tags),
+        "exclusions": resolve_tags(check_dictionary("", tmp_pattern_file_data, "exclusions"), tmp_tags),
+        "tags": tmp_tags,
+        "reduced_patterns": check_dictionary({}, tmp_pattern_file_data, "reduced_patterns"),
+        "patterns": check_dictionary({}, tmp_pattern_file_data, "patterns")
+    }
+
+
+def load_io_data(input_file):
+    return {
+        "input_data": json.load(open(input_file, "r")),
+        "output_data": {}
+    }
+
+
+def replace_values(pattern_file_data, io_data):
+    for key, value in io_data["input_data"].items():
+        io_data["output_data"][key] = value
+        if check_key_requirements(key, pattern_file_data):
+            parse_reduced_patterns(pattern_file_data, io_data, key)
+            parse_patterns(pattern_file_data, io_data, key)
 
 
 def run(config_file):
-    config_groups = json.load(open(config_file, "r"))
-    default_group = default_try_except(config_groups)
+    general_config = json.load(open(config_file, "r"))
+    general_config["config_name"] = config_file
+    check_general_config(general_config)
 
-    for config_name, config_group in config_groups.items():
-        config_group = config_try_except(config_name, config_group, default_group)
-
-        pattern_file = json.load(open(config_group["pattern_file"], "r"))
-        input_file = json.load(open(config_group["input_file"], "r"))
-        output_file = config_group["output_file"]
-
-        key_root = check_dict("", pattern_file, "key_root")
-        tags = check_dict({}, pattern_file, "tags")
-        output_object = {}
-        for key, value in input_file.items():
-            output_object[key] = value
-            if key.startswith(key_root):
-                output_object[key] = parse_patterns(pattern_file["patterns"], tags, key, value)
-
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        json.dump(output_object, open(output_file, "w"), indent="\t")
+    for pattern_file in general_config["pattern_files"]:
+        pattern_file_data = load_pattern_file_data(general_config["pattern_path"], pattern_file)
+        io_data = load_io_data(general_config["input_file"])
+        replace_values(pattern_file_data, io_data)
+        os.makedirs(os.path.dirname(general_config["output_file"]), exist_ok=True)
+        json.dump(io_data["output_data"], open(general_config["output_file"], "w"), indent="\t")
